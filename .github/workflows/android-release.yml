@@ -1,0 +1,194 @@
+name: Android Release (Auto-Sync & Build)
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Forcer la compilation même si la version est déjà publiée'
+        required: false
+        type: boolean
+        default: false
+      target_tag:
+        description: 'Tag spécifique amont à compiler (ex: 2.18.0) - laisser vide pour le dernier'
+        required: false
+        type: string
+        default: ''
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/android-release.yml'
+      - 'android/**'
+      - 'lib/services/update_service.dart'
+      - 'lib/utils/update_dialog.dart'
+
+permissions:
+  contents: write
+
+jobs:
+  check-version:
+    name: Check Upstream Version
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+      version: ${{ steps.check.outputs.version }}
+      tag: ${{ steps.check.outputs.tag }}
+      upstream_body: ${{ steps.check.outputs.upstream_body }}
+    steps:
+      - name: Check latest version
+        id: check
+        run: |
+          if [ -n "${{ inputs.target_tag }}" ]; then
+            UPSTREAM_TAG="${{ inputs.target_tag }}"
+            RELEASE_DATA=$(curl -s -H "Accept: application/vnd.github+json" "https://api.github.com/repos/edde746/plezy/releases/tags/${UPSTREAM_TAG}")
+          else
+            RELEASE_DATA=$(curl -s -H "Accept: application/vnd.github+json" "https://api.github.com/repos/edde746/plezy/releases/latest")
+            UPSTREAM_TAG=$(echo "$RELEASE_DATA" | jq -r .tag_name)
+          fi
+
+          if [ "$UPSTREAM_TAG" = "null" ] || [ -z "$UPSTREAM_TAG" ]; then
+            echo "Upstream tag unavailable, default to 2.18.0"
+            UPSTREAM_TAG="2.18.0"
+          fi
+
+          CLEAN_VERSION="${UPSTREAM_TAG#v}"
+          echo "Upstream tag: $UPSTREAM_TAG (Clean version: $CLEAN_VERSION)"
+
+          # Vérifier si notre dépôt a déjà une release pour ce tag
+          OUR_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${UPSTREAM_TAG}")
+
+          echo "Notre statut de release pour ${UPSTREAM_TAG}: $OUR_STATUS"
+
+          if [ "$OUR_STATUS" = "200" ] && [ "${{ inputs.force_build }}" != "true" ] && [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "La release $UPSTREAM_TAG existe déjà. Rien à faire."
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
+            echo "tag=$UPSTREAM_TAG" >> $GITHUB_OUTPUT
+            BODY=$(echo "$RELEASE_DATA" | jq -r .body)
+            {
+              echo "upstream_body<<EOF"
+              echo "$BODY"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+  build-android:
+    name: Build Android APKs
+    needs: check-version
+    if: ${{ needs.check-version.outputs.should_build == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync upstream tag if needed
+        run: |
+          TARGET_TAG="${{ needs.check-version.outputs.tag }}"
+          if [ -n "$TARGET_TAG" ] && [ "$TARGET_TAG" != "latest" ] && [ "$TARGET_TAG" != "null" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git remote add upstream https://github.com/edde746/plezy.git || true
+            git fetch upstream --tags || true
+            if git rev-parse "tags/$TARGET_TAG" >/dev/null 2>&1; then
+              echo "Merging upstream tag $TARGET_TAG..."
+              git merge -X theirs "tags/$TARGET_TAG" --no-edit -m "chore: sync upstream tag $TARGET_TAG" || {
+                git checkout HEAD -- android/ lib/services/update_service.dart lib/utils/update_dialog.dart .github/workflows/
+                git commit -m "chore: resolve sync conflict keeping custom Android updater" || true
+              }
+              git push origin main || true
+            fi
+          fi
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: "3.47.1"
+          cache: true
+
+      - name: Configure Android signing
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
+      - name: Install dependencies
+        run: flutter pub get --no-example
+
+      - name: Build Split APKs (arm64 & armeabi-v7a)
+        run: |
+          flutter build apk --release --split-per-abi \
+            --dart-define=ENABLE_UPDATE_CHECK=true \
+            --dart-define=ENABLE_DONATIONS=true \
+            --dart-define=UPDATE_GITHUB_REPO=${{ github.repository }}
+
+      - name: Build Universal APK
+        run: |
+          flutter build apk --release \
+            --dart-define=ENABLE_UPDATE_CHECK=true \
+            --dart-define=ENABLE_DONATIONS=true \
+            --dart-define=UPDATE_GITHUB_REPO=${{ github.repository }}
+
+      - name: Clean up keystore
+        if: always()
+        run: rm -f android/app/upload-keystore.jks android/key.properties
+
+      - name: Prepare Release Artifacts
+        id: artifacts
+        run: |
+          mkdir -p dist
+          VERSION="${{ needs.check-version.outputs.version }}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            VERSION="2.18.0"
+          fi
+
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "dist/plezy-${VERSION}-arm64-v8a.apk"
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "dist/plezy-${VERSION}-armeabi-v7a.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/plezy-${VERSION}-universal.apk"
+
+          ls -lh dist/
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.check-version.outputs.tag != 'latest' && needs.check-version.outputs.tag || format('v{0}', needs.check-version.outputs.version) }}
+          name: ${{ format('Plezy v{0} (Android & Android TV)', needs.check-version.outputs.version) }}
+          body: |
+            ## Plezy Android & Android TV Build
+
+            Cette version inclut la mise à jour automatique intégrée (**In-App Auto-Update**) pour :
+            - Smartphones Android
+            - TCL Google TV / Android TV
+            - Fire TV Stick & Fire TV Cube
+
+            ### Fichiers APK à télécharger :
+            - **`plezy-${{ needs.check-version.outputs.version }}-arm64-v8a.apk`** : Smartphones récents et appareils 64 bits.
+            - **`plezy-${{ needs.check-version.outputs.version }}-armeabi-v7a.apk`** : Fire TV Stick, Fire TV Cube et Google TV (TCL, Philips...).
+            - **`plezy-${{ needs.check-version.outputs.version }}-universal.apk`** : APK universel compatible avec tous les appareils.
+
+            ---
+            ### Notes amont (upstream) :
+            ${{ needs.check-version.outputs.upstream_body }}
+          files: |
+            dist/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

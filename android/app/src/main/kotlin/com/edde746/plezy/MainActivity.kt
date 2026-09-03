@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -17,6 +18,8 @@ import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
 import android.util.Rational
+import androidx.core.content.FileProvider
+import java.io.File
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.View
@@ -762,6 +765,33 @@ class MainActivity : FlutterActivity() {
             result.success(true)
           }
         }
+        "installApk" -> {
+          val filePath = call.argument<String>("filePath")
+          if (filePath != null) {
+            val success = installApk(filePath)
+            result.success(success)
+          } else {
+            result.error("INVALID_ARGUMENT", "filePath cannot be null", null)
+          }
+        }
+        "canRequestPackageInstalls" -> {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            result.success(packageManager.canRequestPackageInstalls())
+          } else {
+            result.success(true)
+          }
+        }
+        "openInstallPermissionSettings" -> {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+              data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
+            result.success(true)
+          } else {
+            result.success(false)
+          }
+        }
         else -> result.notImplemented()
       }
     }
@@ -1080,5 +1110,31 @@ class MainActivity : FlutterActivity() {
       builder.setAutoEnterEnabled(autoEnterEnabled)
     }
     return builder.build()
+  }
+
+  private fun installApk(filePath: String): Boolean {
+    return try {
+      val file = File(filePath)
+      if (!file.exists()) {
+        Log.e(TAG, "installApk: File not found at $filePath")
+        return false
+      }
+
+      val apkUri = FileProvider.getUriForFile(
+        this,
+        "${applicationContext.packageName}.fileprovider",
+        file
+      )
+      val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(apkUri, "application/vnd.android.package-archive")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      }
+      startActivity(intent)
+      true
+    } catch (e: Exception) {
+      Log.e(TAG, "installApk: Failed to install APK", e)
+      false
+    }
   }
 }

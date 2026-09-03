@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:auto_updater/auto_updater.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -15,7 +16,7 @@ import 'base_shared_preferences_service.dart';
 /// via auto_updater for native update dialogs and in-app installs.
 /// On all other platforms: falls back to GitHub API check + browser link dialog.
 class UpdateService {
-  static const String _githubRepo = 'edde746/plezy';
+  static const String _githubRepo = String.fromEnvironment('UPDATE_GITHUB_REPO', defaultValue: 'Nico7an/plezy');
   static const String _feedUrl = 'https://cdn.jsdelivr.net/gh/edde746/plezy@appcast/appcast.xml';
 
   static const String _keySkippedVersion = 'update_skipped_version';
@@ -150,10 +151,18 @@ class UpdateService {
         await _updateLastCheckTime();
       }
 
-      final response = await (client ?? httpClient).get(
+      var response = await (client ?? httpClient).get(
         'https://api.github.com/repos/$_githubRepo/releases/latest',
         headers: {'Accept': 'application/vnd.github+json'},
       );
+
+      // Fallback to upstream if fork repo has no releases yet
+      if (response.statusCode == 404 && _githubRepo != 'edde746/plezy') {
+        response = await (client ?? httpClient).get(
+          'https://api.github.com/repos/edde746/plezy/releases/latest',
+          headers: {'Accept': 'application/vnd.github+json'},
+        );
+      }
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -171,6 +180,7 @@ class UpdateService {
             return null;
           }
 
+          final assets = (data['assets'] as List<dynamic>?) ?? [];
           return {
             'hasUpdate': true,
             'currentVersion': currentVersion,
@@ -179,11 +189,55 @@ class UpdateService {
             'releaseName': data['name'] as String? ?? 'Version $cleanVersion',
             'releaseNotes': data['body'] as String? ?? '',
             'publishedAt': data['published_at'] as String,
+            'assets': assets,
           };
         }
       }
     } catch (error, stackTrace) {
       appLogger.e('Failed to check for updates', error: error, stackTrace: stackTrace);
+    }
+
+    return null;
+  }
+
+  /// Find the best APK download URL for the current Android device ABI from release assets
+  static Future<String?> findApkDownloadUrl(List<dynamic> assets) async {
+    if (!Platform.isAndroid || assets.isEmpty) return null;
+
+    try {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final supportedAbis = androidInfo.supportedAbis;
+
+      // 1. Try to match primary supported ABI (e.g. arm64-v8a or armeabi-v7a)
+      for (final abi in supportedAbis) {
+        final abiLower = abi.toLowerCase();
+        for (final item in assets) {
+          final name = (item['name'] as String? ?? '').toLowerCase();
+          if (name.endsWith('.apk') && name.contains(abiLower)) {
+            return item['browser_download_url'] as String?;
+          }
+        }
+      }
+
+      // 2. Try universal APK
+      for (final item in assets) {
+        final name = (item['name'] as String? ?? '').toLowerCase();
+        if (name.endsWith('.apk') &&
+            (name.contains('universal') ||
+                (!name.contains('v7a') && !name.contains('arm64') && !name.contains('x86')))) {
+          return item['browser_download_url'] as String?;
+        }
+      }
+
+      // 3. Fallback to any APK in assets
+      for (final item in assets) {
+        final name = (item['name'] as String? ?? '').toLowerCase();
+        if (name.endsWith('.apk')) {
+          return item['browser_download_url'] as String?;
+        }
+      }
+    } catch (e) {
+      appLogger.e('Error finding APK download URL', error: e);
     }
 
     return null;
