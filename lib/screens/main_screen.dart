@@ -44,6 +44,7 @@ import '../providers/multi_server_provider.dart';
 import '../providers/hidden_libraries_provider.dart';
 import '../providers/libraries_provider.dart';
 import '../providers/playback_state_provider.dart';
+import '../providers/seerr_account_provider.dart';
 import '../widgets/settings_builder.dart';
 import '../widgets/tv_virtual_keyboard.dart';
 import '../services/api_cache.dart';
@@ -1131,6 +1132,11 @@ class _MainScreenState extends State<MainScreen>
     // Always consume: the gates latch backgrounding on every lifecycle event.
     final resumedFromBackground = _profileSelectionResumeGate.consumePromptOn(state);
     final refreshStaleContent = _contentRefreshResumeGate.consumeRefreshOn(state);
+    // Seerr authority is independent of media-server reachability and stale
+    // content. A grant must recover hidden Request actions on any real resume.
+    if (resumedFromBackground && mounted) {
+      unawaited(context.read<SeerrAccountProvider?>()?.refreshUser());
+    }
     if (shouldShowProfileSelectionOnResume(
       resumedFromBackground: resumedFromBackground,
       isOffline: _isOffline,
@@ -1493,9 +1499,15 @@ class _MainScreenState extends State<MainScreen>
 
     // The tvOS engine normally passes root Menu presses through to UIKit. If a
     // stale event still reaches Flutter, avoid showing an exit prompt that
-    // cannot be honored app-side.
+    // cannot be honored app-side. Log it: a Menu swallowed here with the
+    // picker up or focus off this route is how #2239 read as a dead remote.
     if (PlatformDetector.isAppleTV()) {
       _lastBackPressAt = null;
+      appLogger.d(
+        'tvOS Menu reached MainScreen at the home root: '
+        'passthrough=$_shouldPassTvosMenuToSystem picker=$_isShowingProfileSelection '
+        'focus=${FocusManager.instance.primaryFocus?.debugLabel}',
+      );
       return KeyEventResult.handled;
     }
 

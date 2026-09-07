@@ -169,6 +169,8 @@
     "alwaysKeepSidebarOpenDescription": "Yan menü genişletilmiş kalır ve içerik alanı buna göre ayarlanır",
     "showUnwatchedCount": "İzlenmemiş Sayısını Göster",
     "showUnwatchedCountDescription": "Dizilerde ve sezonlarda izlenmemiş bölüm sayısını göster",
+    "showWatchedIndicators": "",
+    "showWatchedIndicatorsDescription": "",
     "showEpisodeNumberOnCards": "Kartlarda Bölüm Numarasını Göster",
     "showEpisodeNumberOnCardsDescription": "Bölüm kartlarında sezon ve bölüm numarasını göster",
     "showSeasonPostersOnTabs": "Sekmelerde Sezon Afişlerini Göster",
@@ -273,10 +275,17 @@
     "autoPlayNextEpisodeDescription": "Bir bölüm bittiğinde sonraki bölümü otomatik başlat",
     "playNextCountdown": "Sonraki Bölüm Geri Sayımı",
     "playNextCountdownImmediate": "Hemen oynat",
-    "autoSkipIntro": "Jeneriği Otomatik Atla",
-    "autoSkipIntroDescription": "Kaç saniye sonra jenerik işaretçilerini otomatik atla",
-    "autoSkipCredits": "Emeği Geçenleri Otomatik Atla",
-    "autoSkipCreditsDescription": "Emeği geçenleri otomatik atla ve sonraki bölümü oynat",
+    "skipIntroMode": "",
+    "skipIntroModeOffDescription": "",
+    "skipIntroModeButtonDescription": "",
+    "skipIntroModeAutoDescription": "",
+    "skipCreditsMode": "",
+    "skipCreditsModeOffDescription": "",
+    "skipCreditsModeButtonDescription": "",
+    "skipCreditsModeAutoDescription": "",
+    "skipMarkerModeOff": "",
+    "skipMarkerModeButton": "",
+    "skipMarkerModeAuto": "",
     "forceSkipMarkerFallback": "Yedek İşaretçileri Zorla",
     "forceSkipMarkerFallbackDescription": "Plex işaretçileri olsa bile kısım başlığı kalıplarını kullan",
     "autoSkipDelay": "Otomatik Atlama Gecikmesi",
@@ -770,6 +779,7 @@
     "playbackDataInvalid": "Sunucu geçersiz oynatma bilgisi döndürdü.",
     "playbackCancelled": "Oynatma iptal edildi.",
     "playbackFailed": "Oynatma başlatılamadı.",
+    "mediaUnavailable": "",
     "errorLoadingFileInfo": "Dosya bilgisi yüklenirken hata: ${error}",
     "errorLoadingSeries": "Dizi yüklenirken hata",
     "musicNotSupported": "Müzik oynatma henüz desteklenmiyor",
@@ -1254,6 +1264,10 @@
     "notInLibrary": "Kitaplığınızda yok",
     "inTheseLibraries": "Bu kitaplıklarda var",
     "checkingLibrary": "Kitaplığınız kontrol ediliyor...",
+    "libraryCheckFailed": {
+      "one": "",
+      "other": ""
+    },
     "emptyTitle": "Henüz burada bir şey yok",
     "emptyMessage": "${source} kaynağındaki satırlar içerik bulunduğunda burada görünecektir.",
     "searchHint": "${source} üzerinde ara",
@@ -1647,7 +1661,8 @@
       "timedOut": "Aktarıcı sunucusu zamanında yanıt vermedi",
       "connectionLost": "Oturum hazır olmadan bağlantı kapandı",
       "invalidRelayResponse": "Aktarıcı sunucusu beklenmeyen bir yanıt gönderdi",
-      "sessionEnded": "Kurucu oturumu sonlandırdı"
+      "sessionEnded": "Kurucu oturumu sonlandırdı",
+      "sessionUnavailable": ""
     }
   },
   "downloads": {
@@ -2103,7 +2118,9 @@
     "noSessionCookie": "Seerr bir oturum çerezi oluşturmadı",
     "freshCookieRejected": "Seerr yeni oturum çerezini reddetti",
     "noUserInformation": "Seerr kullanıcı bilgilerini döndürmedi",
-    "sessionRejectedAfterReauth": "Yeniden giriş yapıldıktan sonra oturum reddedildi"
+    "sessionRejectedAfterReauth": "Yeniden giriş yapıldıktan sonra oturum reddedildi",
+    "permissionDenied": "",
+    "permissionRevoked": ""
   },
   "services": {
     "title": "Servisler",

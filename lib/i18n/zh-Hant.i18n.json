@@ -169,6 +169,8 @@
     "alwaysKeepSidebarOpenDescription": "側邊欄保持展開狀態，內容區域自動調整",
     "showUnwatchedCount": "顯示未觀看數量",
     "showUnwatchedCountDescription": "在影集和單季上顯示未觀看的集數",
+    "showWatchedIndicators": "",
+    "showWatchedIndicatorsDescription": "",
     "showEpisodeNumberOnCards": "在卡片上顯示集數",
     "showEpisodeNumberOnCardsDescription": "在單集卡片上顯示季和集編號",
     "showSeasonPostersOnTabs": "在索引標籤上顯示單季海報",
@@ -273,10 +275,17 @@
     "autoPlayNextEpisodeDescription": "目前單集結束時自動播放下一集",
     "playNextCountdown": "下一集倒數計時",
     "playNextCountdownImmediate": "立即播放",
-    "autoSkipIntro": "自動跳過片頭",
-    "autoSkipIntroDescription": "幾秒鐘後自動跳過片頭標記",
-    "autoSkipCredits": "自動跳過片尾",
-    "autoSkipCreditsDescription": "自動跳過片尾並播放下一集",
+    "skipIntroMode": "",
+    "skipIntroModeOffDescription": "",
+    "skipIntroModeButtonDescription": "",
+    "skipIntroModeAutoDescription": "",
+    "skipCreditsMode": "",
+    "skipCreditsModeOffDescription": "",
+    "skipCreditsModeButtonDescription": "",
+    "skipCreditsModeAutoDescription": "",
+    "skipMarkerModeOff": "",
+    "skipMarkerModeButton": "",
+    "skipMarkerModeAuto": "",
     "forceSkipMarkerFallback": "強制使用備用標記",
     "forceSkipMarkerFallbackDescription": "即使 Plex 有標記，也強制使用章節標題模式",
     "autoSkipDelay": "自動跳過延遲",
@@ -766,6 +775,7 @@
     "playbackDataInvalid": "伺服器傳回的播放資訊無效。",
     "playbackCancelled": "播放已取消。",
     "playbackFailed": "無法開始播放。",
+    "mediaUnavailable": "",
     "errorLoadingFileInfo": "載入檔案資訊時發生錯誤：${error}",
     "errorLoadingSeries": "載入影集時發生錯誤",
     "musicNotSupported": "目前不支援播放音樂",
@@ -1248,6 +1258,9 @@
     "notInLibrary": "不在您的媒體庫中",
     "inTheseLibraries": "在這些媒體庫中",
     "checkingLibrary": "正在檢查您的媒體庫…",
+    "libraryCheckFailed": {
+      "other": ""
+    },
     "emptyTitle": "這裡還沒有任何內容",
     "emptyMessage": "當 ${source} 有內容時，相關資訊將顯示在此處。",
     "searchHint": "搜尋 ${source}",
@@ -1637,7 +1650,8 @@
       "timedOut": "中繼伺服器未及時回應",
       "connectionLost": "工作階段就緒前連線已中斷",
       "invalidRelayResponse": "中繼伺服器傳回了非預期的回應",
-      "sessionEnded": "主持人已結束工作階段"
+      "sessionEnded": "主持人已結束工作階段",
+      "sessionUnavailable": ""
     }
   },
   "downloads": {
@@ -2093,7 +2107,9 @@
     "noSessionCookie": "Seerr 未發出工作階段 Cookie",
     "freshCookieRejected": "Seerr 拒絕了新的工作階段 Cookie",
     "noUserInformation": "Seerr 未傳回使用者資訊",
-    "sessionRejectedAfterReauth": "重新登入後，工作階段遭到拒絕"
+    "sessionRejectedAfterReauth": "重新登入後，工作階段遭到拒絕",
+    "permissionDenied": "",
+    "permissionRevoked": ""
   },
   "services": {
     "title": "外部服務",

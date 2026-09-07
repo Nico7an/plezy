@@ -68,7 +68,7 @@ class MobileVideoControls extends StatefulWidget {
   // Live TV time-shift
   final CaptureBuffer? captureBuffer;
   final bool isAtLiveEdge;
-  final double streamStartEpoch;
+  final int Function(Duration position)? liveEpochForPosition;
   final ValueChanged<int>? onLiveSeek;
 
   /// Server ID for chapter thumbnails in the content strip
@@ -117,7 +117,7 @@ class MobileVideoControls extends StatefulWidget {
     this.liveChannelName,
     this.captureBuffer,
     this.isAtLiveEdge = true,
-    this.streamStartEpoch = 0,
+    this.liveEpochForPosition,
     this.onLiveSeek,
     this.serverId,
     this.showQueueTab = false,
@@ -404,7 +404,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           builder: (context) => LiveTimelineBar(
             player: widget.player,
             captureBuffer: widget.captureBuffer!,
-            streamStartEpoch: widget.streamStartEpoch,
+            epochForPosition: widget.liveEpochForPosition!,
             isAtLiveEdge: widget.isAtLiveEdge,
             onSeekEnd: widget.onLiveSeek,
             horizontalLayout: false,
@@ -456,22 +456,17 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
     );
   }
 
-  /// Conditionally wraps child with SafeArea only in portrait mode
+  /// Wraps [child] in a SafeArea: full insets in portrait, horizontal-only in
+  /// landscape. The landscape header and timeline must still clear the notch
+  /// and rounded corners; only the vertical insets are dropped so the
+  /// controls can hug the top/bottom edges over the full-bleed video surface.
   Widget _conditionalSafeArea({
     required BuildContext context,
     required Widget child,
     bool top = true,
     bool bottom = true,
   }) {
-    final orientation = MediaQuery.orientationOf(context);
-    final isPortrait = orientation == Orientation.portrait;
-
-    // Only apply SafeArea in portrait mode
-    if (isPortrait) {
-      return SafeArea(top: top, bottom: bottom, child: child);
-    }
-
-    // In landscape, return child without SafeArea
-    return child;
+    final isPortrait = MediaQuery.orientationOf(context) == Orientation.portrait;
+    return SafeArea(top: isPortrait && top, bottom: isPortrait && bottom, child: child);
   }
 }

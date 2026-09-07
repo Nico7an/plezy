@@ -169,6 +169,8 @@
     "alwaysKeepSidebarOpenDescription": "サイドバーを展開したままにし、コンテンツ領域を幅に合わせて調整します",
     "showUnwatchedCount": "未視聴数を表示",
     "showUnwatchedCountDescription": "番組とシーズンに未視聴エピソード数を表示",
+    "showWatchedIndicators": "",
+    "showWatchedIndicatorsDescription": "",
     "showEpisodeNumberOnCards": "カードにエピソード番号を表示",
     "showEpisodeNumberOnCardsDescription": "エピソードカードにシーズン番号とエピソード番号を表示します",
     "showSeasonPostersOnTabs": "タブにシーズンポスターを表示",
@@ -273,10 +275,17 @@
     "autoPlayNextEpisodeDescription": "エピソードが終了すると、次のエピソードを自動的に再生します",
     "playNextCountdown": "次回再生のカウントダウン",
     "playNextCountdownImmediate": "すぐに再生",
-    "autoSkipIntro": "イントロを自動スキップ",
-    "autoSkipIntroDescription": "数秒後にイントロマーカーを自動的にスキップ",
-    "autoSkipCredits": "クレジットを自動スキップ",
-    "autoSkipCreditsDescription": "クレジットを自動的にスキップして次のエピソードを再生",
+    "skipIntroMode": "",
+    "skipIntroModeOffDescription": "",
+    "skipIntroModeButtonDescription": "",
+    "skipIntroModeAutoDescription": "",
+    "skipCreditsMode": "",
+    "skipCreditsModeOffDescription": "",
+    "skipCreditsModeButtonDescription": "",
+    "skipCreditsModeAutoDescription": "",
+    "skipMarkerModeOff": "",
+    "skipMarkerModeButton": "",
+    "skipMarkerModeAuto": "",
     "forceSkipMarkerFallback": "フォールバックマーカーを強制",
     "forceSkipMarkerFallbackDescription": "Plexにマーカーがある場合でもチャプタータイトルのパターンを使用します",
     "autoSkipDelay": "自動スキップの遅延",
@@ -766,6 +775,7 @@
     "playbackDataInvalid": "サーバーから無効な再生情報が返されました。",
     "playbackCancelled": "再生がキャンセルされました。",
     "playbackFailed": "再生を開始できませんでした。",
+    "mediaUnavailable": "",
     "errorLoadingFileInfo": "ファイル情報の読み込みエラー: ${error}",
     "errorLoadingSeries": "シリーズの読み込みエラー",
     "musicNotSupported": "音楽の再生はまだサポートされていません",
@@ -1248,6 +1258,9 @@
     "notInLibrary": "ライブラリにありません",
     "inTheseLibraries": "これらのライブラリにあります",
     "checkingLibrary": "ライブラリを確認中…",
+    "libraryCheckFailed": {
+      "other": ""
+    },
     "emptyTitle": "まだ何もありません",
     "emptyMessage": "${source}にコンテンツが追加されると、ここに表示されます。",
     "searchHint": "${source}を検索",
@@ -1637,7 +1650,8 @@
       "timedOut": "リレーサーバーが時間内に応答しませんでした",
       "connectionLost": "セッションの準備が整う前に接続が閉じられました",
       "invalidRelayResponse": "リレーサーバーから予期しない応答が返されました",
-      "sessionEnded": "ホストがセッションを終了しました"
+      "sessionEnded": "ホストがセッションを終了しました",
+      "sessionUnavailable": ""
     }
   },
   "downloads": {
@@ -2093,7 +2107,9 @@
     "noSessionCookie": "Seerrからセッションクッキーが発行されませんでした",
     "freshCookieRejected": "Seerrが新しいセッションクッキーを拒否しました",
     "noUserInformation": "Seerrからユーザー情報が返されませんでした",
-    "sessionRejectedAfterReauth": "再サインイン後にセッションが拒否されました"
+    "sessionRejectedAfterReauth": "再サインイン後にセッションが拒否されました",
+    "permissionDenied": "",
+    "permissionRevoked": ""
   },
   "services": {
     "title": "サービス",

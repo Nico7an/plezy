@@ -546,6 +546,12 @@ class Translations$settings$en {
 	/// en: 'Display unwatched episode count on shows and seasons'
 	String get showUnwatchedCountDescription => 'Display unwatched episode count on shows and seasons';
 
+	/// en: 'Show Watched Indicators'
+	String get showWatchedIndicators => 'Show Watched Indicators';
+
+	/// en: 'Display a checkmark on watched movies, shows, and episodes'
+	String get showWatchedIndicatorsDescription => 'Display a checkmark on watched movies, shows, and episodes';
+
 	/// en: 'Show Episode Number on Cards'
 	String get showEpisodeNumberOnCards => 'Show Episode Number on Cards';
 
@@ -858,17 +864,38 @@ class Translations$settings$en {
 	/// en: 'Play immediately'
 	String get playNextCountdownImmediate => 'Play immediately';
 
-	/// en: 'Auto Skip Intro'
-	String get autoSkipIntro => 'Auto Skip Intro';
+	/// en: 'Skip Intro'
+	String get skipIntroMode => 'Skip Intro';
 
-	/// en: 'Automatically skip intro markers after a few seconds'
-	String get autoSkipIntroDescription => 'Automatically skip intro markers after a few seconds';
+	/// en: 'Play intros normally without a skip button'
+	String get skipIntroModeOffDescription => 'Play intros normally without a skip button';
 
-	/// en: 'Auto Skip Credits'
-	String get autoSkipCredits => 'Auto Skip Credits';
+	/// en: 'Show a skip button when an intro starts'
+	String get skipIntroModeButtonDescription => 'Show a skip button when an intro starts';
 
-	/// en: 'Automatically skip credits and play next episode'
-	String get autoSkipCreditsDescription => 'Automatically skip credits and play next episode';
+	/// en: 'Skip intros automatically after the delay below'
+	String get skipIntroModeAutoDescription => 'Skip intros automatically after the delay below';
+
+	/// en: 'Skip Credits'
+	String get skipCreditsMode => 'Skip Credits';
+
+	/// en: 'Play credits normally without a skip button'
+	String get skipCreditsModeOffDescription => 'Play credits normally without a skip button';
+
+	/// en: 'Show a skip button when credits start'
+	String get skipCreditsModeButtonDescription => 'Show a skip button when credits start';
+
+	/// en: 'Skip credits automatically and play the next episode'
+	String get skipCreditsModeAutoDescription => 'Skip credits automatically and play the next episode';
+
+	/// en: 'Off'
+	String get skipMarkerModeOff => 'Off';
+
+	/// en: 'Show button'
+	String get skipMarkerModeButton => 'Show button';
+
+	/// en: 'Automatic'
+	String get skipMarkerModeAuto => 'Automatic';
 
 	/// en: 'Force Fallback Markers'
 	String get forceSkipMarkerFallback => 'Force Fallback Markers';
@@ -2245,6 +2272,9 @@ class Translations$messages$en {
 	/// en: 'Playback could not be started.'
 	String get playbackFailed => 'Playback could not be started.';
 
+	/// en: 'This content is no longer available.'
+	String get mediaUnavailable => 'This content is no longer available.';
+
 	/// en: 'Error loading file info: ${error}'
 	String errorLoadingFileInfo({required Object error}) => 'Error loading file info: ${error}';
 
@@ -3419,6 +3449,12 @@ class Translations$explore$en {
 
 	/// en: 'Checking your library...'
 	String get checkingLibrary => 'Checking your library...';
+
+	/// en: '(one) {Couldn't check ${n} server} (other) {Couldn't check ${n} servers}'
+	String libraryCheckFailed({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
+		one: 'Couldn\'t check ${n} server',
+		other: 'Couldn\'t check ${n} servers',
+	);
 
 	/// en: 'Nothing here yet'
 	String get emptyTitle => 'Nothing here yet';
@@ -5302,6 +5338,12 @@ class Translations$seerr$en {
 
 	/// en: 'The session was rejected after signing in again'
 	String get sessionRejectedAfterReauth => 'The session was rejected after signing in again';
+
+	/// en: 'Seerr denied this action: your account no longer has the required permission'
+	String get permissionDenied => 'Seerr denied this action: your account no longer has the required permission';
+
+	/// en: 'You no longer have permission to request this'
+	String get permissionRevoked => 'You no longer have permission to request this';
 }
 
 // Path: services
@@ -6526,6 +6568,9 @@ class Translations$watchTogether$errors$en {
 
 	/// en: 'The host ended the session'
 	String get sessionEnded => 'The host ended the session';
+
+	/// en: 'Unable to resume this session. Join or create a room to continue.'
+	String get sessionUnavailable => 'Unable to resume this session. Join or create a room to continue.';
 }
 
 // Path: downloads.backgroundWarning
@@ -7129,6 +7174,8 @@ extension on Translations {
 			'settings.alwaysKeepSidebarOpenDescription' => 'Sidebar stays expanded and content area adjusts to fit',
 			'settings.showUnwatchedCount' => 'Show Unwatched Count',
 			'settings.showUnwatchedCountDescription' => 'Display unwatched episode count on shows and seasons',
+			'settings.showWatchedIndicators' => 'Show Watched Indicators',
+			'settings.showWatchedIndicatorsDescription' => 'Display a checkmark on watched movies, shows, and episodes',
 			'settings.showEpisodeNumberOnCards' => 'Show Episode Number on Cards',
 			'settings.showEpisodeNumberOnCardsDescription' => 'Show season and episode number on episode cards',
 			'settings.showSeasonPostersOnTabs' => 'Show Season Posters on Tabs',
@@ -7233,10 +7280,17 @@ extension on Translations {
 			'settings.autoPlayNextEpisodeDescription' => 'Start the next episode automatically when one ends',
 			'settings.playNextCountdown' => 'Play Next Countdown',
 			'settings.playNextCountdownImmediate' => 'Play immediately',
-			'settings.autoSkipIntro' => 'Auto Skip Intro',
-			'settings.autoSkipIntroDescription' => 'Automatically skip intro markers after a few seconds',
-			'settings.autoSkipCredits' => 'Auto Skip Credits',
-			'settings.autoSkipCreditsDescription' => 'Automatically skip credits and play next episode',
+			'settings.skipIntroMode' => 'Skip Intro',
+			'settings.skipIntroModeOffDescription' => 'Play intros normally without a skip button',
+			'settings.skipIntroModeButtonDescription' => 'Show a skip button when an intro starts',
+			'settings.skipIntroModeAutoDescription' => 'Skip intros automatically after the delay below',
+			'settings.skipCreditsMode' => 'Skip Credits',
+			'settings.skipCreditsModeOffDescription' => 'Play credits normally without a skip button',
+			'settings.skipCreditsModeButtonDescription' => 'Show a skip button when credits start',
+			'settings.skipCreditsModeAutoDescription' => 'Skip credits automatically and play the next episode',
+			'settings.skipMarkerModeOff' => 'Off',
+			'settings.skipMarkerModeButton' => 'Show button',
+			'settings.skipMarkerModeAuto' => 'Automatic',
 			'settings.forceSkipMarkerFallback' => 'Force Fallback Markers',
 			'settings.forceSkipMarkerFallbackDescription' => 'Use chapter title patterns even when Plex has markers',
 			'settings.autoSkipDelay' => 'Auto Skip Delay',
@@ -7477,6 +7531,8 @@ extension on Translations {
 			'fileInfo.path' => 'Path',
 			'fileInfo.fileName' => 'File Name',
 			'fileInfo.size' => 'Size',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.totalSize' => 'Total Size',
 			'fileInfo.container' => 'Container',
 			'fileInfo.duration' => 'Duration',
@@ -7486,8 +7542,6 @@ extension on Translations {
 			'fileInfo.filePresent' => 'File Present',
 			'fileInfo.fileReadable' => 'Readable by Server',
 			'fileInfo.streamPath' => 'Stream Path',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.optimizedForStreaming' => 'Optimized for Streaming',
 			'fileInfo.has64bitOffsets' => '64-bit Offsets',
 			'fileInfo.protocol' => 'Protocol',
@@ -7695,6 +7749,7 @@ extension on Translations {
 			'messages.playbackDataInvalid' => 'The server returned invalid playback information.',
 			'messages.playbackCancelled' => 'Playback was canceled.',
 			'messages.playbackFailed' => 'Playback could not be started.',
+			'messages.mediaUnavailable' => 'This content is no longer available.',
 			'messages.errorLoadingFileInfo' => ({required Object error}) => 'Error loading file info: ${error}',
 			'messages.errorLoadingSeries' => 'Error loading series',
 			'messages.musicNotSupported' => 'Music playback is not yet supported',
@@ -7990,6 +8045,8 @@ extension on Translations {
 			'libraries.folders' => 'folders',
 			'libraries.tabs.recommended' => 'Recommended',
 			'libraries.tabs.browse' => 'Browse',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.tabs.collections' => 'Collections',
 			'libraries.tabs.playlists' => 'Playlists',
 			'libraries.groupings.title' => 'Grouping',
@@ -8000,8 +8057,6 @@ extension on Translations {
 			'libraries.groupings.episodes' => 'Episodes',
 			'libraries.groupings.artists' => 'Artists',
 			'libraries.groupings.albums' => 'Albums',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.groupings.tracks' => 'Tracks',
 			'libraries.groupings.folders' => 'Folders',
 			'libraries.filterCategories.genre' => 'Genre',
@@ -8117,6 +8172,7 @@ extension on Translations {
 			'explore.notInLibrary' => 'Not in your library',
 			'explore.inTheseLibraries' => 'In these libraries',
 			'explore.checkingLibrary' => 'Checking your library...',
+			'explore.libraryCheckFailed' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: 'Couldn\'t check ${n} server', other: 'Couldn\'t check ${n} servers', ), 
 			'explore.emptyTitle' => 'Nothing here yet',
 			'explore.emptyMessage' => ({required Object source}) => 'Rows from ${source} will appear here once they have content.',
 			'explore.searchHint' => ({required Object source}) => 'Search ${source}',
@@ -8468,6 +8524,7 @@ extension on Translations {
 			'watchTogether.errors.connectionLost' => 'The connection closed before the session was ready',
 			'watchTogether.errors.invalidRelayResponse' => 'The relay sent an unexpected response',
 			'watchTogether.errors.sessionEnded' => 'The host ended the session',
+			'watchTogether.errors.sessionUnavailable' => 'Unable to resume this session. Join or create a room to continue.',
 			'downloads.title' => 'Downloads',
 			'downloads.manage' => 'Manage',
 			'downloads.tvShows' => 'TV Shows',
@@ -8502,6 +8559,8 @@ extension on Translations {
 			'downloads.downloadingFilesTooltip' => ({required Object files}) => 'Downloading ${files}',
 			'downloads.noDownloadsTree' => 'No downloads',
 			'downloads.pauseAll' => 'Pause all',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.resumeAll' => 'Resume all',
 			'downloads.deleteAll' => 'Delete all',
 			'downloads.selectVersion' => 'Select Version',
@@ -8514,8 +8573,6 @@ extension on Translations {
 			'downloads.invalidEpisodeCount' => 'Enter a valid episode count.',
 			'downloads.keepSynced' => 'Keep synced',
 			'downloads.downloadOnce' => 'Download once',
-			_ => null,
-		} ?? switch (path) {
 			'downloads.keepNUnwatched' => ({required Object count}) => 'Keep ${count} unwatched',
 			'downloads.editSyncRule' => 'Edit sync rule',
 			'downloads.removeSyncRule' => 'Remove sync rule',
@@ -8893,6 +8950,8 @@ extension on Translations {
 			'seerr.freshCookieRejected' => 'Seerr rejected the new session cookie',
 			'seerr.noUserInformation' => 'Seerr did not return user information',
 			'seerr.sessionRejectedAfterReauth' => 'The session was rejected after signing in again',
+			'seerr.permissionDenied' => 'Seerr denied this action: your account no longer has the required permission',
+			'seerr.permissionRevoked' => 'You no longer have permission to request this',
 			'services.title' => 'Services',
 			'services.hubSubtitle' => 'Sync watch progress and request new titles.',
 			'services.integrations' => 'Integrations',

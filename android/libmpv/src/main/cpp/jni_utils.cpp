@@ -50,20 +50,22 @@ void init_methods_cache(JNIEnv* env) {
 
   mpv_MpvPlayer = env->FindClass("com/edde746/plezy/libmpv/MpvPlayer");
   mpv_MpvPlayer = reinterpret_cast<jclass>(env->NewGlobalRef(mpv_MpvPlayer));
-  mpv_MpvPlayer_onPropertyChanged_S =
-      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(Ljava/lang/String;)V");
-  mpv_MpvPlayer_onPropertyChanged_Sb =
-      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(Ljava/lang/String;Z)V");
-  mpv_MpvPlayer_onPropertyChanged_Sl =
-      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(Ljava/lang/String;J)V");
-  mpv_MpvPlayer_onPropertyChanged_Sd =
-      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(Ljava/lang/String;D)V");
-  mpv_MpvPlayer_onPropertyChanged_SS =
-      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(Ljava/lang/String;Ljava/lang/String;)V");
-  mpv_MpvPlayer_onEvent = env->GetStaticMethodID(mpv_MpvPlayer, "onEvent", "(I)V");
-  mpv_MpvPlayer_onEndFile = env->GetStaticMethodID(mpv_MpvPlayer, "onEndFile", "(I)V");
+  // Every callback leads with the origin session (J); see event.cpp.
+  mpv_MpvPlayer_onPropertyChanged_SJZ =
+      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(JLjava/lang/String;JZ)V");
+  mpv_MpvPlayer_onPropertyChanged_SZJZ =
+      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(JLjava/lang/String;ZJZ)V");
+  mpv_MpvPlayer_onPropertyChanged_SJJZ =
+      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(JLjava/lang/String;JJZ)V");
+  mpv_MpvPlayer_onPropertyChanged_SDJZ =
+      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(JLjava/lang/String;DJZ)V");
+  mpv_MpvPlayer_onPropertyChanged_SSJZ =
+      env->GetStaticMethodID(mpv_MpvPlayer, "onPropertyChanged", "(JLjava/lang/String;Ljava/lang/String;JZ)V");
+  mpv_MpvPlayer_onEvent = env->GetStaticMethodID(mpv_MpvPlayer, "onEvent", "(JIJZDZ)V");
+  mpv_MpvPlayer_onEndFile = env->GetStaticMethodID(mpv_MpvPlayer, "onEndFile", "(JIJZ)V");
   mpv_MpvPlayer_onLogMessage =
-      env->GetStaticMethodID(mpv_MpvPlayer, "onLogMessage", "(Ljava/lang/String;ILjava/lang/String;)V");
+      env->GetStaticMethodID(mpv_MpvPlayer, "onLogMessage", "(JLjava/lang/String;ILjava/lang/String;)V");
+  mpv_MpvPlayer_onHook = env->GetStaticMethodID(mpv_MpvPlayer, "onHook", "(JLjava/lang/String;J)V");
 
   methods_initialized = true;
 }

@@ -108,6 +108,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   bool _initialLoadComplete = false;
   bool _pendingTvBrowseRailFocus = false;
 
+  /// Primary focus when the rail claim was armed; see [_railClaimAbandoned].
+  FocusNode? _railClaimFocusOrigin;
+
   GlobalKey<HubSectionState>? _continueWatchingHubKey;
   final Map<String, GlobalKey<HubSectionState>> _hubKeysByIdentity = {};
   List<GlobalKey<HubSectionState>> _orderedHubKeys = const [];
@@ -255,6 +258,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     }
 
     _pendingTvBrowseRailFocus = true;
+    _railClaimFocusOrigin = FocusManager.instance.primaryFocus;
     if (immediate && _tvBrowseHubs.isNotEmpty) {
       final rail = _tvBrowseRailKey.currentState;
       if (rail != null) {
@@ -278,8 +282,32 @@ class _DiscoverScreenState extends State<DiscoverScreen>
     });
   }
 
+  /// A rail-focus request stays armed while the rail has no hubs to focus
+  /// (empty first load), so hubs landing later still receive it. It must not
+  /// outlive the user's own navigation: hubs arriving minutes later would
+  /// yank the remote off a sidebar item the user has since moved to.
+  ///
+  /// Where focus *sits* cannot tell those apart — MainScreen hands a tab over
+  /// while focus is still on the sidebar item that selected it, and that
+  /// request is as live as one made from a bare scope. What distinguishes a
+  /// stale claim is that focus *moved* after the request was armed and now
+  /// rests on a control off this screen. A bare scope — MainScreen's content
+  /// scope before any child has focus — is "nowhere yet", not a destination.
+  bool get _railClaimAbandoned {
+    final node = FocusManager.instance.primaryFocus;
+    if (identical(node, _railClaimFocusOrigin)) return false;
+    final focusContext = node?.context;
+    if (node == null || node is FocusScopeNode || focusContext == null) return false;
+    return !identical(focusContext.findAncestorStateOfType<_DiscoverScreenState>(), this);
+  }
+
   void _applyPendingTvBrowseRailFocus() {
-    if (_pendingTvBrowseRailFocus) _focusTvBrowseRailWhenReady();
+    if (!_pendingTvBrowseRailFocus) return;
+    if (_railClaimAbandoned) {
+      _pendingTvBrowseRailFocus = false;
+      return;
+    }
+    _focusTvBrowseRailWhenReady();
   }
 
   /// Handle vertical navigation between hubs
@@ -1385,112 +1413,119 @@ class _DiscoverScreenState extends State<DiscoverScreen>
                     : isLargeScreen
                     ? 200
                     : 0,
-                child: Padding(
-                  padding: .symmetric(
-                    horizontal: isTv
-                        ? TvLayoutConstants.horizontalInset
-                        : isLargeScreen
-                        ? 40
-                        : 24,
-                  ),
-                  child: Align(
-                    alignment: alignLeft ? Alignment.centerLeft : Alignment.center,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: isTv ? TvLayoutConstants.heroContentMaxWidth : double.infinity,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: alignLeft ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-                        mainAxisSize: .min,
-                        children: [
-                          // Show logo, falling back to the name/title
-                          ClearLogoImage(
-                            client: heroClient,
-                            logoPath: heroItem.clearLogoPath,
-                            width: heroLogoWidth,
-                            height: heroLogoHeight,
-                            alignment: alignLeft ? Alignment.bottomLeft : Alignment.bottomCenter,
-                            // The hero scrim washes artwork toward the scaffold
-                            // background; light themes recolor light-toned logos.
-                            logoToneTarget: logoToneTargetFor(
-                              surface: theme.scaffoldBackgroundColor,
-                              foreground: colorScheme.onSurface,
-                            ),
-                            fallbackBuilder: (context) => FittingTitleText(
-                              showName,
-                              style: heroTitleStyle,
-                              textAlign: alignLeft ? TextAlign.left : TextAlign.center,
-                              alignment: alignLeft ? Alignment.centerLeft : Alignment.center,
-                            ),
-                          ),
-
-                          // Metadata as dot-separated text with content type
-                          if (heroItem.year != null || heroItem.contentRating != null || heroItem.rating != null) ...[
-                            const SizedBox(height: 16),
-                            Text(
-                              [
-                                contentTypeLabel,
-                                if (heroItem.rating != null) '★ ${formatRating(heroItem.rating!)}',
-                                if (heroItem.contentRating != null) formatContentRating(heroItem.contentRating!),
-                                if (heroItem.year != null) heroItem.year.toString(),
-                              ].join(' • '),
-                              style: TextStyle(
-                                color: colorScheme.onSurface,
-                                fontSize: isTv ? 18 : 14,
-                                fontWeight: .w600,
+                // Horizontal-only SafeArea: the PageView artwork behind stays
+                // full-bleed; the foreground text/buttons clear the landscape
+                // notch. Vertical placement is handled by `bottom` above.
+                child: SafeArea(
+                  top: false,
+                  bottom: false,
+                  child: Padding(
+                    padding: .symmetric(
+                      horizontal: isTv
+                          ? TvLayoutConstants.horizontalInset
+                          : isLargeScreen
+                          ? 40
+                          : 24,
+                    ),
+                    child: Align(
+                      alignment: alignLeft ? Alignment.centerLeft : Alignment.center,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: isTv ? TvLayoutConstants.heroContentMaxWidth : double.infinity,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: alignLeft ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+                          mainAxisSize: .min,
+                          children: [
+                            // Show logo, falling back to the name/title
+                            ClearLogoImage(
+                              client: heroClient,
+                              logoPath: heroItem.clearLogoPath,
+                              width: heroLogoWidth,
+                              height: heroLogoHeight,
+                              alignment: alignLeft ? Alignment.bottomLeft : Alignment.bottomCenter,
+                              // The hero scrim washes artwork toward the scaffold
+                              // background; light themes recolor light-toned logos.
+                              logoToneTarget: logoToneTargetFor(
+                                surface: theme.scaffoldBackgroundColor,
+                                foreground: colorScheme.onSurface,
                               ),
-                              textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                              fallbackBuilder: (context) => FittingTitleText(
+                                showName,
+                                style: heroTitleStyle,
+                                textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                                alignment: alignLeft ? Alignment.centerLeft : Alignment.center,
+                              ),
                             ),
-                          ],
 
-                          if (!alignLeft) ...[const SizedBox(height: 20), _buildSmartPlayButton(heroItem)],
+                            // Metadata as dot-separated text with content type
+                            if (heroItem.year != null || heroItem.contentRating != null || heroItem.rating != null) ...[
+                              const SizedBox(height: 16),
+                              Text(
+                                [
+                                  contentTypeLabel,
+                                  if (heroItem.rating != null) '★ ${formatRating(heroItem.rating!)}',
+                                  if (heroItem.contentRating != null) formatContentRating(heroItem.contentRating!),
+                                  if (heroItem.year != null) heroItem.year.toString(),
+                                ].join(' • '),
+                                style: TextStyle(
+                                  color: colorScheme.onSurface,
+                                  fontSize: isTv ? 18 : 14,
+                                  fontWeight: .w600,
+                                ),
+                                textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                              ),
+                            ],
 
-                          if (heroItem.summary != null && !shouldHideSpoiler) ...[
-                            const SizedBox(height: 12),
-                            RichText(
-                              maxLines: isTv ? 3 : 2,
-                              overflow: .ellipsis,
-                              textAlign: alignLeft ? TextAlign.left : TextAlign.center,
-                              text: TextSpan(
+                            if (!alignLeft) ...[const SizedBox(height: 20), _buildSmartPlayButton(heroItem)],
+
+                            if (heroItem.summary != null && !shouldHideSpoiler) ...[
+                              const SizedBox(height: 12),
+                              RichText(
+                                maxLines: isTv ? 3 : 2,
+                                overflow: .ellipsis,
+                                textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                                    fontSize: isTv ? 18 : 14,
+                                    height: isTv ? 1.45 : 1.4,
+                                  ),
+                                  children: [
+                                    if (isEpisode && heroItem.parentIndex != null && heroItem.index != null)
+                                      TextSpan(
+                                        text: 'S${heroItem.parentIndex}, E${heroItem.index}: ',
+                                        style: TextStyle(fontWeight: .bold, color: colorScheme.onSurface),
+                                      ),
+                                    TextSpan(
+                                      text: heroItem.summary?.isNotEmpty == true
+                                          ? heroItem.summary!
+                                          : t.messages.noDescriptionAvailable,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ] else if (shouldHideSpoiler &&
+                                isEpisode &&
+                                heroItem.parentIndex != null &&
+                                heroItem.index != null) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                'S${heroItem.parentIndex}, E${heroItem.index}: ${heroItem.title}',
+                                maxLines: 2,
+                                overflow: .ellipsis,
+                                textAlign: alignLeft ? TextAlign.left : TextAlign.center,
                                 style: TextStyle(
                                   color: colorScheme.onSurface.withValues(alpha: 0.7),
                                   fontSize: isTv ? 18 : 14,
                                   height: isTv ? 1.45 : 1.4,
                                 ),
-                                children: [
-                                  if (isEpisode && heroItem.parentIndex != null && heroItem.index != null)
-                                    TextSpan(
-                                      text: 'S${heroItem.parentIndex}, E${heroItem.index}: ',
-                                      style: TextStyle(fontWeight: .bold, color: colorScheme.onSurface),
-                                    ),
-                                  TextSpan(
-                                    text: heroItem.summary?.isNotEmpty == true
-                                        ? heroItem.summary!
-                                        : t.messages.noDescriptionAvailable,
-                                  ),
-                                ],
                               ),
-                            ),
-                          ] else if (shouldHideSpoiler &&
-                              isEpisode &&
-                              heroItem.parentIndex != null &&
-                              heroItem.index != null) ...[
-                            const SizedBox(height: 12),
-                            Text(
-                              'S${heroItem.parentIndex}, E${heroItem.index}: ${heroItem.title}',
-                              maxLines: 2,
-                              overflow: .ellipsis,
-                              textAlign: alignLeft ? TextAlign.left : TextAlign.center,
-                              style: TextStyle(
-                                color: colorScheme.onSurface.withValues(alpha: 0.7),
-                                fontSize: isTv ? 18 : 14,
-                                height: isTv ? 1.45 : 1.4,
-                              ),
-                            ),
-                          ],
+                            ],
 
-                          if (alignLeft) ...[SizedBox(height: isTv ? 28 : 20), _buildSmartPlayButton(heroItem)],
-                        ],
+                            if (alignLeft) ...[SizedBox(height: isTv ? 28 : 20), _buildSmartPlayButton(heroItem)],
+                          ],
+                        ),
                       ),
                     ),
                   ),

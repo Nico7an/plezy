@@ -169,6 +169,8 @@
     "alwaysKeepSidebarOpenDescription": "Жүйелік мәзір ашық күйінде қалады",
     "showUnwatchedCount": "Көрілмегендер санын көрсету",
     "showUnwatchedCountDescription": "Сериалдар мен маусымдарда көрілмеген бөлімдер санын көрсету",
+    "showWatchedIndicators": "",
+    "showWatchedIndicatorsDescription": "",
     "showEpisodeNumberOnCards": "Карточкаларда бөлім нөмірін көрсету",
     "showEpisodeNumberOnCardsDescription": "Бөлім карточкаларында маусым мен бөлім нөмірін көрсету",
     "showSeasonPostersOnTabs": "Қойындыларда маусым постерлерін көрсету",
@@ -273,10 +275,17 @@
     "autoPlayNextEpisodeDescription": "Бір бөлім аяқталғанда келесі бөлімді автоматты түрде бастау",
     "playNextCountdown": "Келесіні ойнату санағы",
     "playNextCountdownImmediate": "Дереу ойнату",
-    "autoSkipIntro": "Киріс бөлімді (Intro) автоматты өткізу",
-    "autoSkipIntroDescription": "Бірнеше секундтан кейін киріс белгілерін автоматты өткізу",
-    "autoSkipCredits": "Титрлерді автоматты өткізу",
-    "autoSkipCreditsDescription": "Титрлерді автоматты өткізіп, келесі бөлімді ойнату",
+    "skipIntroMode": "",
+    "skipIntroModeOffDescription": "",
+    "skipIntroModeButtonDescription": "",
+    "skipIntroModeAutoDescription": "",
+    "skipCreditsMode": "",
+    "skipCreditsModeOffDescription": "",
+    "skipCreditsModeButtonDescription": "",
+    "skipCreditsModeAutoDescription": "",
+    "skipMarkerModeOff": "",
+    "skipMarkerModeButton": "",
+    "skipMarkerModeAuto": "",
     "forceSkipMarkerFallback": "Қосалқы белгілерді мәжбүрлеу",
     "forceSkipMarkerFallbackDescription": "Plex белгілері болса да бөлім тақырыбы үлгілерін пайдалану",
     "autoSkipDelay": "Автоматты өткізу кідірісі",
@@ -770,6 +779,7 @@
     "playbackDataInvalid": "Сервер қате ойнату мәліметтерін қайтарды.",
     "playbackCancelled": "Ойнатудан бас тартылды.",
     "playbackFailed": "Ойнатуды іске қосу қатесі.",
+    "mediaUnavailable": "",
     "errorLoadingFileInfo": "Файл ақпаратын жүктеу қатесі: ${error}",
     "errorLoadingSeries": "Сериалды жүктеу қатесі",
     "musicNotSupported": "Музыка ойнату әлі қолдау таппайды",
@@ -1254,6 +1264,10 @@
     "notInLibrary": "Кітапханаңызда жоқ",
     "inTheseLibraries": "Осы кітапханаларда бар",
     "checkingLibrary": "Кітапхана тексерілуде...",
+    "libraryCheckFailed": {
+      "one": "",
+      "other": ""
+    },
     "emptyTitle": "Әлі де мұнда ештеңе жоқ",
     "emptyMessage": "${source} дереккөзінен алынған қатарлар мұнда көрінеді.",
     "searchHint": "${source} ішінен іздеу",
@@ -1647,7 +1661,8 @@
       "timedOut": "Реле сервері уақытында жауап бермеді",
       "connectionLost": "Сеанс дайын болмай тұрып байланыс үзілді",
       "invalidRelayResponse": "Реле сервері күтпеген жауап жіберді",
-      "sessionEnded": "Ұйымдастырушы сеансты аяқтады"
+      "sessionEnded": "Ұйымдастырушы сеансты аяқтады",
+      "sessionUnavailable": ""
     }
   },
   "downloads": {
@@ -2103,7 +2118,9 @@
     "noSessionCookie": "Seerr сеанс cookie файлын бермеді",
     "freshCookieRejected": "Seerr жаңа сеанс cookie файлын қабылдамады",
     "noUserInformation": "Seerr пайдаланушы туралы мәліметтерді қайтармады",
-    "sessionRejectedAfterReauth": "Қайта кіргеннен кейін сеанс қабылданбады"
+    "sessionRejectedAfterReauth": "Қайта кіргеннен кейін сеанс қабылданбады",
+    "permissionDenied": "",
+    "permissionRevoked": ""
   },
   "services": {
     "title": "Қызметтер",
